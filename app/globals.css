@@ -127,3 +127,11 @@
 @utility btn-outline {
   @apply btn border-2 border-navy text-navy hover:bg-navy hover:text-white;
 }
+
+/* Admin console form controls (English only, phone first). */
+@utility admin-input {
+  @apply min-h-11 w-full rounded-xl border border-field bg-white px-3 py-2 text-base text-ink;
+}
+@utility admin-card {
+  @apply rounded-card border border-line bg-white p-5 md:p-6;
+}

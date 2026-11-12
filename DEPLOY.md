@@ -5,12 +5,22 @@
 ## Vercel: what the server version needs
 
 - Import the GitHub repository as before; Vercel detects Next.js. No `vercel.json` is needed (the `/` → `/en/` redirect is in `next.config.ts`).
-- Environment variables: `SITE_URL` (required), and `DATABASE_URL` once the database is on. Never add the database address to a `NEXT_PUBLIC_` variable.
-- In **Settings > Functions**, set the region to the one nearest India and the Neon database (for example Mumbai, `bom1`), so pages that refresh from the database stay fast.
+- Environment variables (Project > Settings > Environment Variables, for Production, Preview and Development):
+
+  | Name | Value |
+  | --- | --- |
+  | `DATABASE_URL` | the Neon **pooled** connection string (Neon > Connect), the same one as in `.env.local` |
+  | `SITE_URL` | the site's address with no slash at the end, e.g. `https://worldofstationery.vercel.app`, later your own domain |
+
+  Nothing else is needed: admin sign-in keeps its sessions in the database. Never add the database address to a `NEXT_PUBLIC_` variable, and redeploy after changing a variable.
+- In **Settings > Functions**, set the region to **Singapore (`sin1`)**, the same region as the Neon database (`ap-southeast-1`), so pages and the admin console that talk to the database stay fast.
+- After the first deploy, open `https://your-site-address/admin/` and sign in. Setup links made on this computer with `npm run admin:invite` work on the live site too (same database) if you give the live address as the last argument.
 
 ## Neon (database) set-up
 
 Only needed once the owner decides to switch the database on.
+
+*Done for this site on 12 November 2026: database `worldofstationery` in Neon's Singapore region, migrations 0001–0002 applied and seeded. Kept here for a fresh set-up.*
 
 1. Create a free account at https://neon.tech and a project in the Asia Pacific region closest to India. (Or add Neon from Vercel's **Storage / Marketplace** tab, which creates the project and sets `DATABASE_URL` in Vercel for you.)
 2. In the project's **Connect** dialog, copy the **pooled** connection string. Put it in `.env.local` on this computer as `DATABASE_URL` (see `.env.example`), and in Vercel's environment variables.
@@ -21,10 +31,10 @@ npm run db:migrate -- --seed
 ```
 
    It creates the tables, the two limited roles (`web_anon` for visitors, `web_admin` for admins) and the access rules, then adds today's content.
-4. In Neon's **SQL Editor**, add the first owner (their real email address):
+4. Add the first owner and get their setup link:
 
-```sql
-insert into public.admin_users (email, role, display_name) values ('owner@example.com', 'owner', 'Name');
+```bash
+npm run admin:invite -- owner-email@example.com owner "Name" https://your-site-address
 ```
 
 5. Run `npm run build` (or redeploy on Vercel): the pages are now built from the database.

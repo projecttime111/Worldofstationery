@@ -11,13 +11,15 @@
     "serve": "next start -p 4173",
     "logos": "node scripts/trim-logos.mjs",
     "seed:sql": "node scripts/make-seed.mjs",
-    "db:migrate": "node --env-file-if-exists=.env.local scripts/db-migrate.mjs"
+    "db:migrate": "node --env-file-if-exists=.env.local scripts/db-migrate.mjs",
+    "admin:invite": "node --env-file-if-exists=.env.local scripts/admin-invite.mjs"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.2.0",
     "next": "16.4.6",
     "react": "19.3.0",
-    "react-dom": "19.3.0"
+    "react-dom": "19.3.0",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@tailwindcss/turbopack": "4.3.3",

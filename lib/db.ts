@@ -8,6 +8,7 @@ import { neon, type NeonQueryFunctionInTransaction, type NeonQueryInTransaction 
  * database's Row Level Security rules apply (db/migrations):
  *   asVisitor()     role web_anon:  read published content only
  *   asAdmin(email)  role web_admin: what that admin's entry in admin_users allows
+ *   asAuth()        role web_auth:  sign-in only (passwords, sessions, login attempts)
  *
  * DATABASE_URL is secret (it contains the password). It lives in .env.local and in the
  * host's settings, never in git and never in a NEXT_PUBLIC_ variable.
@@ -39,4 +40,10 @@ export async function asAdmin(email: string, queries: Queries): Promise<Record<s
     ...queries(tx),
   ]);
   return results.slice(2) as Record<string, unknown>[][];
+}
+
+/** Run queries as the sign-in code (role web_auth): passwords, sessions and login attempts only. */
+export async function asAuth(queries: Queries): Promise<Record<string, unknown>[][]> {
+  const results = await client().transaction((tx) => [tx`set local role web_auth`, ...queries(tx)]);
+  return results.slice(1) as Record<string, unknown>[][];
 }

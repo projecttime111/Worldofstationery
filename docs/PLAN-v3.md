@@ -12,6 +12,8 @@ The brief itself is in `docs/PROMPT-v3.md`, word for word. Where it says Supabas
 
 Committed and pushed to https://github.com/projecttime111/Worldofstationery.
 
+**Admin console, first part (phase 4 login + phase 6 content): done, moved ahead at the owner's request.** The live Neon database is migrated (0001, 0002) and seeded. Answer to question 9.2: sign-in is built into the site with no new service or library: email + password (scrypt), sessions in the database (12 hours), 5 failed attempts per email / 20 per network address per 15 minutes, one-time setup links instead of emailed invitations (no email service yet). A third limited database role, `web_auth`, is the only one that can see password hashes. Screens: dashboard, business details, offers, brands, site text (EN/HI/MR side by side, "Copy from English"), admin users and change history; every save publishes immediately. Added `zod` (on the approved list). Not yet: preview before publishing, roll back a change, logo/PDF uploads (needs file storage, question 9.1), magic links (needs an email service, question 9.4).
+
 ## 1. Where the site is today
 
 - Next.js 16.4.6 App Router, `output: "export"`: plain HTML in `out/`, no server.

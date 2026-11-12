@@ -38,6 +38,34 @@ npm run serve
 
 Then open http://localhost:4173/. Pages are built ahead of time and served by the Next.js server; they refresh by themselves within seconds when content changes in the database (and at least once an hour).
 
+## Admin console
+
+Open `/admin/` on the site (on this computer: http://localhost:3000/admin/ with `npm run dev`, or http://localhost:4173/admin/ after `npm run build` and `npm run serve`). It is in English, works on phones (bottom tab bar), is hidden from search engines, and signs you out after 12 hours.
+
+What it does today:
+
+- **Business details:** phone and WhatsApp numbers, email, GSTIN, address, map, opening days and times, social links.
+- **Offers:** switch the Offers section on or off, and every number and date in it.
+- **Brands and catalogues:** pyramid position and order, what each brand supplies (EN/HI/MR), the catalogue's "updated" month, add or remove brands.
+- **Site text:** every word on the site, English, Hindi and Marathi side by side, with "Copy from English".
+- **Admin users** (owners only): add an admin, change their role, make a new setup link, remove them.
+- **Change history** (owners only): who changed what and when, with old and new values.
+
+Saving publishes at once: the public pages show the change within seconds. Logo and catalogue PDF uploads, the enquiries inbox, quotations, visitor numbers and collections come in the next phases.
+
+### Adding admins
+
+- **The first owner** is added from this computer, once:
+
+  ```bash
+  npm run admin:invite -- owner-email@example.com owner "Name" https://your-site-address
+  ```
+
+  It prints a one-time setup link (valid 7 days). Open it and choose a password (10 characters or more).
+- **Everyone after that** is added by an owner in **Admin users**. The console shows a setup link to send them yourself, for example on WhatsApp. There is no email service yet, so nothing is emailed.
+- **Forgotten password:** an owner makes a new setup link for that person in Admin users.
+- Roles: an **owner** can do everything; **staff** can edit content but cannot manage admins or see the change history.
+
 ## Database (Neon Postgres)
 
 The database is optional until the admin console arrives (phase 4). Its structure is in `db/migrations/`, and `db/seed.sql` fills it with today's content from the `content/` folder. With `DATABASE_URL` in `.env.local`:
