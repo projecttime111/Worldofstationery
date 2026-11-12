@@ -1,10 +1,16 @@
 # Round 3 plan: admin console, file-based quotations, collections
 
-Status: **approved; phase 1 done** (12 November 2026). Questions in section 9 are still open.
+Status: **approved; phase 1 done; database switched to Neon** (12 November 2026). Questions in section 9 are still open.
+
+The brief itself is in `docs/PROMPT-v3.md`, word for word. Where it says Supabase, this plan applies: the owner chose **Neon Postgres** instead.
 
 ## Progress
 
-**Phase 1 (foundation): done.** Server build, Supabase migration with Row Level Security, seed generated from `content/`, content loader with file fallback, `.env.example`. One change from the plan: site texts are not copied into the database. They stay in `content/<lang>.json` and the database stores only the texts edited in the admin (`text_overrides`), so text changes made in code in later phases still show up. Checked without Docker: the migration and seed run in PGlite (Postgres in Node, in a temporary folder outside the project), 24 access-rule checks pass, and the seeded database gives exactly the same content as the files. Not yet run against a real Supabase project. Round 2 is still uncommitted (waiting for a git name and email).
+**Phase 1 (foundation): done.** Server build, database migration with Row Level Security, seed generated from `content/`, content loader with file fallback, `.env.example`, `npm run db:migrate`. One change from the plan: site texts are not copied into the database. They stay in `content/<lang>.json` and the database stores only the texts edited in the admin (`text_overrides`), so text changes made in code in later phases still show up.
+
+**Database switched from Supabase to Neon** (owner's decision, 12 November 2026). The migration now uses plain Postgres roles instead of Supabase's, the site talks to Neon with `@neondatabase/serverless`, and `@supabase/supabase-js` is removed. Checked in PGlite (Postgres in Node, in a temporary folder outside the project): 25 access-rule checks pass, the seeded database gives exactly the same content as the files, and a build with an unreachable database falls back to the files. Not yet run against a real Neon project.
+
+Committed and pushed to https://github.com/projecttime111/Worldofstationery.
 
 ## 1. Where the site is today
 
@@ -21,30 +27,35 @@ Status: **approved; phase 1 done** (12 November 2026). Questions in section 9 ar
 | --- | --- | --- |
 | Build | static export | normal Next.js server build (`output` removed) |
 | Public pages | static HTML | still static, cached with `"use cache"` + `cacheTag`; admin saves call `updateTag` / `revalidatePath` so changes are live within seconds |
-| Content | JSON files | Supabase tables, seeded from today's JSON so nothing changes visually. If Supabase is unreachable during a build, pages fall back to the bundled JSON, so a paused free project can't break the site |
+| Content | JSON files | Neon Postgres tables, seeded from today's JSON so nothing changes visually. If the database is unreachable during a build, pages fall back to the bundled JSON, so the site can't break |
 | `/` redirect | meta refresh + `vercel.json` + `_redirects` | `redirects()` in `next.config.ts` |
 | Request guard | none | `proxy.ts` (Next 16's name for middleware): admin auth check, 12-hour session cap, `noindex` header on `/admin` |
 | Server code | none | Route handlers (`/api/track`, `/api/enquiry/*`, `/api/cron/*`) and server actions for the admin |
-| Secrets | none | `.env.local` (git-ignored) and `.env.example`; service-role key only in server files marked `import "server-only"` |
+| Secrets | none | `.env.local` (git-ignored) and `.env.example`; `DATABASE_URL` read only in `lib/db.ts` (`import "server-only"`) |
 
-### Supabase
+### Database: Neon Postgres
 
-All tables are SQL migrations in `supabase/migrations/`, with RLS on every table.
+All tables are SQL migrations in `db/migrations/`, applied with `npm run db:migrate`, with RLS on every table.
 
-- **Public (anon) can only insert:** `enquiries`, `analytics_events` (both through server routes that validate with zod), and upload into the private `enquiry-files` bucket through signed upload URLs. Anon has **no select** policy on anything private.
-- **Admins** (signed in, email in `admin_users`) read and write; owner-only rules for settings and users are enforced in RLS too, not just in the UI.
+- Neon is plain Postgres: no built-in logins, file storage or browser API. Only the site's server code connects. Each query runs in a transaction that first switches to a limited role (`lib/db.ts`): `web_anon` for visitors, `web_admin` plus the admin's email (`app.user_email`) for signed-in admins. RLS policies are written for these two roles.
+- **Visitors (`web_anon`) can only insert:** `enquiries`, `analytics_events` (both through server routes that validate with zod). They have **no select** right on anything private.
+- **Admins** (`web_admin`, email in `admin_users`) read and write; owner-only rules for settings and users are enforced in RLS too, not just in the UI.
+- What Supabase would have provided, and what replaces it (see questions 9.1 and 9.2):
+  - **Admin login:** a login library in the site itself (Auth.js or Better Auth) storing sessions in Neon, or Neon Auth. Magic links need an email service (question 9.4).
+  - **File storage** (enquiry files, logos, catalogue PDFs, backups): Vercel Blob or Cloudflare R2, with signed, expiring upload and download links.
+  - **Scheduled jobs:** Vercel Cron (or a free GitHub Actions schedule).
 - Main tables: `admin_users`, `enquiries`, `enquiry_files`, `enquiry_items`, `enquiry_notes`, `quotations`, `quotation_items`, `analytics_events`, `daily_stats`, `daily_salt`, `rate_limits`, `audit_log`, `settings`, and content tables (`business`, `announcement`, `offers`, `brands`, `catalogues`, `categories`, `category_brands`, `collections`, `collection_tags`, `stats`, `translations`).
 - Reference numbers `WOS-YYMM-NNNN` come from a Postgres function with a per-month counter.
-- Buckets: `enquiry-files` (private), `content-media` (public: logos, catalogue PDFs, photos), `backups` (private).
+- File storage folders: `enquiry-files` (private), `content-media` (public: logos, catalogue PDFs, photos), `backups` (private).
 
 ### Scheduled jobs
 
 Route handlers under `/api/cron/*`, protected by a `CRON_SECRET`, called by the host's cron or a free GitHub Actions schedule:
 
-- daily keep-alive (one light query, so the free project is not paused);
+- no keep-alive needed: Neon's free plan scales the database to zero when idle and wakes it on the next query (a short delay on the first visit after a quiet spell), instead of pausing the project;
 - nightly rollup of `analytics_events` into `daily_stats`, deleting raw events older than 90 days;
 - nightly retention: enquiry files older than N months (default 12) are deleted; a warning list appears in the admin a week before;
-- weekly CSV backup of enquiries, the events summary and the content tables into the private `backups` bucket.
+- weekly CSV backup of enquiries, the events summary and the content tables into the private `backups` storage (Neon's own restore history on the free plan is short).
 
 ## 3. Public site changes
 
@@ -81,7 +92,7 @@ Route handlers under `/api/cron/*`, protected by a `CRON_SECRET`, called by the 
 - Rejected: `.xlsm .docm .doc`, executables, archives. The server checks the extension **and** the magic bytes.
 - The needs field becomes optional once a file is attached.
 - Two buttons: **Submit enquiry** (saves, shows `WOS-2611-0042`, "a quotation comes within one week", and "Also message us on WhatsApp" with the reference) and **Send on WhatsApp only** (today's behaviour).
-- Flow: create enquiry (Turnstile + honeypot + 5 per hour per IP, counted with a salted hash, not the raw IP) → server returns signed upload URLs under `enquiries/<id>/<random>` → browser uploads with progress → `finalise` call checks the files and starts parsing.
+- Flow: create enquiry (Turnstile + honeypot + 5 per hour per IP, counted with a salted hash, not the raw IP) → server returns signed upload URLs (file storage, see section 2) under `enquiries/<id>/<random>` → browser uploads with progress → `finalise` call checks the files and starts parsing.
 
 ### Analytics tracker
 
@@ -93,7 +104,7 @@ Route handlers under `/api/cron/*`, protected by a `CRON_SECRET`, called by the 
 
 ## 4. Admin console (`/admin`, English only)
 
-- Supabase Auth: email + password, magic-link fallback; only emails in `admin_users`. Roles: owner, staff. `noindex, nofollow`, not in the sitemap, login rate-limited, logout after 12 hours.
+- Login (library chosen in question 9.2): email + password, magic-link fallback; only emails in `admin_users`. Roles: owner, staff. `noindex, nofollow`, not in the sitemap, login rate-limited, logout after 12 hours.
 - Layout: sidebar on desktop, bottom tab bar on phones.
 - **Dashboard:** date range (Today, 7, 30, 90 days, Custom) with change vs the previous period on every number; the nine number cards; the Recharts charts from the brief plus "Interest by category" and the quoted pipeline value; the "Needs attention" list. Recharts loads only in the admin, never on public pages.
 - **Enquiries inbox:** filters (status, customer type, date, has attachments, source: category card / bulk page / collections), search, CSV and Excel export, unread badge.
@@ -121,7 +132,7 @@ Route handlers under `/api/cron/*`, protected by a `CRON_SECRET`, called by the 
 
 Each phase ends with a working build and a short report, so the owner can check progress and change direction early.
 
-1. **Foundation:** commit round 2; switch to the server build; Supabase schema, RLS, seed from JSON; content read from the database with JSON fallback; `.env.example`. *Check: the site looks exactly as it does now.*
+1. **Foundation:** commit round 2; switch to the server build; database schema, RLS, seed from JSON; content read from the database with JSON fallback; `.env.example`. *Check: the site looks exactly as it does now.*
 2. **Enquiries:** bulk page uploads, category-card dialog, Turnstile, rate limits, reference numbers, parsers with unit tests.
 3. **Collections and header.**
 4. **Admin core:** login, roles, inbox, enquiry detail, combined list, quotation Excel and PDF, all open requirements.
@@ -132,7 +143,8 @@ Each phase ends with a working build and a short report, so the owner can check 
 ## 7. Risks
 
 - **Lighthouse 95 on the home page.** The new header, collections tabs, dialog and tracker all add JavaScript. Plan: keep the collections panel server-rendered with a small script for tabs; load the dialog, search and dropdown menus only on first use; tracker via `sendBeacon` after load. Hindi and Marathi already sit at 92–94 (see round 2).
-- **Supabase free plan:** pauses after a week without activity and has no automatic backups; covered by the keep-alive and weekly CSV backup. DEPLOY.md will say when Pro is worth it (for example: once enquiries matter day to day, or files near the 1 GB storage limit).
+- **Neon free plan:** limited storage and compute hours, and a short restore history; covered by the weekly CSV backup. DEPLOY.md will say when a paid Neon plan is worth it (for example, once enquiries matter day to day). Files are not stored in Neon, so they don't use its storage.
+- **Region:** the Neon database and the site's server functions should be in the same region close to India, or every page refresh pays a round trip across the world.
 - **Hosting:** sharp (logo upload) and file parsing need a Node runtime. Some edge-only free tiers can't run sharp, which affects the hosting choice.
 - **Size:** this round is several times larger than rounds 1 and 2 together.
 
@@ -142,10 +154,12 @@ The four other collection headlines, descriptions and tags; the privacy page; up
 
 ## 9. Questions for the owner
 
-1. **Local Supabase needs Docker Desktop**, which is not installed on this PC. Install Docker Desktop (free for small businesses), or use a free Supabase cloud project as the development database?
-2. **Dependencies outside the approved list:**
-   - Vitest (test runner) for the parser and RLS tests;
-   - the Supabase CLI (`supabase`, dev only) for migrations;
+1. **File storage:** Vercel Blob (built into Vercel, billed with it) or Cloudflare R2 (separate free account, generous free tier)?
+2. **Admin login:** Auth.js or Better Auth inside the site (no extra service), or Neon Auth (managed by Neon)?
+2a. **Dependencies outside the approved list:**
+   - `@neondatabase/serverless`: added, as the Neon driver the switch needs;
+   - Vitest (test runner) for the parser and RLS tests, and PGlite (Postgres in Node, dev only) so the RLS tests run without Docker or a cloud database;
+   - the login library from 9.2, and the storage client from 9.1;
    - fflate (tiny ZIP library) for "Download full backup now";
    - for the PDF quotation, see 9.3.
 3. **PDF quotation:** (a) pdf-lib + @pdf-lib/fontkit: a real PDF download, with Hindi/Marathi names supported by embedding a Devanagari font; or (b) no new dependency: a print-ready quotation page that the browser saves as PDF ("Save as PDF" in the print dialog, also on Android).
@@ -153,4 +167,5 @@ The four other collection headlines, descriptions and tags; the privacy page; up
 5. **Reply time:** may the dialog say "usually within a day"? If not: "We'll get back to you soon".
 6. **Nav:** the new nav in the brief has no Bulk orders link and no Offers link. Keep "Bulk orders" in the header (and Offers when switched on)?
 7. **Hosting:** I will compare options in DEPLOY.md with current prices and terms; nothing is set up until you choose.
-8. **Git name and email** for the commits (round 2 is still uncommitted).
+8. ~~Git name and email~~: done; commits use the repository account `projecttime111`.
+9. **Development database:** a separate Neon branch (free) for development, so testing never touches the live data?

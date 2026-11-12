@@ -6,14 +6,13 @@ import seedOffers from "@/content/offers.json";
 import { categoryImages as seedCategoryImages, type CardImage } from "@/content/photos";
 import { contentFromRows, type ContentRows } from "./content-rows";
 import { bundledDicts, type Dict, type Locale } from "./i18n";
-import { supabaseConfigured } from "./supabase/env";
-import { publicClient } from "./supabase/public";
+import { asVisitor, databaseConfigured } from "./db";
 
 /**
  * Everything the public pages show, in one object.
  *
- * With Supabase set up, it is read from the database (one cached read, refreshed when an
- * admin publishes: see CONTENT_TAG). Without Supabase, or if the database cannot be
+ * With the database set up (DATABASE_URL), it is read from Neon Postgres (one cached read,
+ * refreshed when an admin publishes: see CONTENT_TAG). Without a database, or if it cannot be
  * reached, the bundled files in content/ are used, so the site never breaks.
  */
 
@@ -59,7 +58,7 @@ export const fallbackContent: SiteContent = {
 };
 
 export async function getContent(): Promise<SiteContent> {
-  if (!supabaseConfigured()) return fallbackContent;
+  if (!databaseConfigured()) return fallbackContent;
   try {
     return await cachedContent();
   } catch (error) {
@@ -77,23 +76,15 @@ export async function getPageContent(locale: Locale) {
 const cachedContent = unstable_cache(loadFromDatabase, ["site-content", "v1"], { tags: [CONTENT_TAG] });
 
 async function loadFromDatabase(): Promise<SiteContent> {
-  const db = publicClient();
-  const [business, brands, offers, categories, texts] = await Promise.all([
-    db.from("business").select("*").eq("id", 1).single(),
-    db.from("brands").select("*").order("position"),
-    db.from("offers").select("*").eq("id", 1).single(),
-    db.from("categories").select("slug, position, image_src, image_width, image_height").order("position"),
-    db.from("text_overrides").select("locale, path, value"),
+  const [business, brands, offers, categories, texts] = await asVisitor((tx) => [
+    tx`select * from public.business where id = 1`,
+    tx`select * from public.brands order by position`,
+    tx`select * from public.offers where id = 1`,
+    tx`select slug, position, image_src, image_width, image_height from public.categories order by position`,
+    tx`select locale, path, value from public.text_overrides`,
   ]);
-  for (const r of [business, brands, offers, categories, texts]) if (r.error) throw r.error;
   return contentFromRows(
-    {
-      business: business.data,
-      brands: brands.data,
-      offers: offers.data,
-      categories: categories.data,
-      texts: texts.data,
-    } as ContentRows,
+    { business: business[0] ?? null, brands, offers: offers[0] ?? null, categories, texts } as ContentRows,
     fallbackContent,
   );
 }

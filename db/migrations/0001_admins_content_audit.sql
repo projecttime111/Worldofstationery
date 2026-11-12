@@ -1,12 +1,38 @@
 -- World of Stationery · round 3 · phase 1
 -- Admin users, the site's editable content, settings, and the audit log.
 --
+-- Plain Postgres (Neon). The browser never talks to the database: the site's server code
+-- connects and, inside each transaction, switches to one of two roles (lib/db.ts):
+--   web_anon   for visitors;
+--   web_admin  for a signed-in admin, with that admin's email in the setting app.user_email.
+--
 -- Access rules (Row Level Security is on for every table):
---   * Anyone (anon) may READ the published content tables: business, offers, brands,
+--   * Visitors (web_anon) may READ the published content tables: business, offers, brands,
 --     categories, category_brands, text_overrides. Nothing else.
---   * Only signed-in admins (email listed in admin_users) may CHANGE content.
+--   * Only admins (web_admin, email listed in admin_users) may CHANGE content.
 --   * Only owners may manage admin_users and settings, and read the audit log.
 --   * Every content change is written to audit_log with the old and new values.
+
+-- ── Roles ───────────────────────────────────────────────────────────────────
+
+do $$
+begin
+  if not exists (select from pg_roles where rolname = 'web_anon') then
+    create role web_anon nologin;
+  end if;
+  if not exists (select from pg_roles where rolname = 'web_admin') then
+    create role web_admin nologin;
+  end if;
+  -- The role that runs this migration (the site's connection) may switch to both.
+  execute format('grant web_anon, web_admin to %I', current_user);
+end $$;
+
+grant usage on schema public to web_anon, web_admin;
+
+-- Email of the signed-in admin for this transaction, set by lib/db.ts. Null for visitors.
+create function public.request_email() returns text
+language sql stable set search_path = ''
+as $$ select lower(nullif(current_setting('app.user_email', true), '')) $$;
 
 -- ── Admin users and role helpers ────────────────────────────────────────────
 
@@ -28,9 +54,9 @@ language sql stable security definer set search_path = ''
 as $$
   select a.role
   from public.admin_users a
-  where a.email = lower(coalesce(auth.jwt() ->> 'email', ''))
-    and coalesce((auth.jwt() ->> 'is_anonymous')::boolean, false) = false
+  where a.email = public.request_email()
 $$;
+-- (Admin policies are granted only to web_admin, so a visitor transaction never reaches them.)
 
 create function public.is_admin() returns boolean
 language sql stable set search_path = ''
@@ -59,13 +85,13 @@ create trigger admin_users_keep_one_owner
 alter table public.admin_users enable row level security;
 
 create policy "admins see the admin list" on public.admin_users
-  for select to authenticated using (public.is_admin());
+  for select to web_admin using (public.is_admin());
 create policy "owners add admins" on public.admin_users
-  for insert to authenticated with check (public.is_owner());
+  for insert to web_admin with check (public.is_owner());
 create policy "owners change admins" on public.admin_users
-  for update to authenticated using (public.is_owner()) with check (public.is_owner());
+  for update to web_admin using (public.is_owner()) with check (public.is_owner());
 create policy "owners remove admins" on public.admin_users
-  for delete to authenticated using (public.is_owner());
+  for delete to web_admin using (public.is_owner());
 
 -- ── Shared triggers: who changed a row, and the audit log ───────────────────
 
@@ -74,7 +100,7 @@ language plpgsql set search_path = ''
 as $$
 begin
   new.updated_at := now();
-  new.updated_by := coalesce(auth.jwt() ->> 'email', 'system');
+  new.updated_by := coalesce(public.request_email(), 'system');
   return new;
 end $$;
 
@@ -110,7 +136,7 @@ begin
   end loop;
   insert into public.audit_log (actor, table_name, row_key, action, old_value, new_value)
   values (
-    coalesce(auth.jwt() ->> 'email', 'system'),
+    coalesce(public.request_email(), 'system'),
     tg_table_name,
     key,
     lower(tg_op),
@@ -122,7 +148,7 @@ end $$;
 
 alter table public.audit_log enable row level security;
 create policy "owners read the audit log" on public.audit_log
-  for select to authenticated using (public.is_owner());
+  for select to web_admin using (public.is_owner());
 -- No insert/update/delete policies: rows are written only by the audit_row trigger.
 
 -- ── Business details (one row) ──────────────────────────────────────────────
@@ -252,26 +278,28 @@ declare
 begin
   foreach t in array array['business', 'offers', 'brands', 'categories', 'category_brands', 'text_overrides'] loop
     execute format('alter table public.%I enable row level security', t);
-    execute format('create policy "anyone reads %1$s" on public.%1$I for select to anon, authenticated using (true)', t);
-    execute format('create policy "admins add %1$s" on public.%1$I for insert to authenticated with check (public.is_admin())', t);
-    execute format('create policy "admins change %1$s" on public.%1$I for update to authenticated using (public.is_admin()) with check (public.is_admin())', t);
-    execute format('create policy "admins remove %1$s" on public.%1$I for delete to authenticated using (public.is_admin())', t);
-    -- Belt and braces: visitors cannot write even if a policy is added by mistake later.
-    execute format('revoke insert, update, delete, truncate on public.%I from anon', t);
+    execute format('create policy "anyone reads %1$s" on public.%1$I for select to web_anon, web_admin using (true)', t);
+    execute format('create policy "admins add %1$s" on public.%1$I for insert to web_admin with check (public.is_admin())', t);
+    execute format('create policy "admins change %1$s" on public.%1$I for update to web_admin using (public.is_admin()) with check (public.is_admin())', t);
+    execute format('create policy "admins remove %1$s" on public.%1$I for delete to web_admin using (public.is_admin())', t);
+    execute format('grant select on public.%I to web_anon, web_admin', t);
+    execute format('grant insert, update, delete on public.%I to web_admin', t);
   end loop;
 end $$;
 
 alter table public.settings enable row level security;
 create policy "admins read settings" on public.settings
-  for select to authenticated using (public.is_admin());
+  for select to web_admin using (public.is_admin());
 create policy "owners add settings" on public.settings
-  for insert to authenticated with check (public.is_owner());
+  for insert to web_admin with check (public.is_owner());
 create policy "owners change settings" on public.settings
-  for update to authenticated using (public.is_owner()) with check (public.is_owner());
+  for update to web_admin using (public.is_owner()) with check (public.is_owner());
 create policy "owners remove settings" on public.settings
-  for delete to authenticated using (public.is_owner());
+  for delete to web_admin using (public.is_owner());
 
-revoke all on public.admin_users, public.audit_log, public.settings from anon;
+-- Visitors get no rights at all on these three tables.
+grant select, insert, update, delete on public.admin_users, public.settings to web_admin;
+grant select on public.audit_log to web_admin;
 
 -- ── Triggers ────────────────────────────────────────────────────────────────
 

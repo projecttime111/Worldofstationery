@@ -1,7 +1,7 @@
 /**
  * Business facts and brands: the starting values (seed) for the database, and the fallback
  * the site uses whenever the database is not set up or cannot be reached.
- * Once the site runs with Supabase, the owner edits these in the admin console, not here.
+ * Once the site runs with the database (Neon), the owner edits these in the admin console, not here.
  * Pages get them through lib/content.ts. Do not add facts that the business has not confirmed.
  */
 

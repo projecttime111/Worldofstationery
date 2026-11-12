@@ -3,14 +3,14 @@
 The website of **World of Stationery**, the online store of **Yamuna Enterprises**, Akola.
 English, Hindi and Marathi.
 
-> **Round 3 in progress** (admin console, file-based quotations, collections; plan in `docs/PLAN-v3.md`). Phase 1 is done: the site now runs as a Next.js server app that can read its content from a Supabase database, and falls back to the files in `content/` when no database is set up. Nothing on the public pages has changed.
+> **Round 3 in progress** (admin console, file-based quotations, collections; brief in `docs/PROMPT-v3.md`, plan in `docs/PLAN-v3.md`). Phase 1 is done: the site now runs as a Next.js server app that can read its content from a Neon Postgres database, and falls back to the files in `content/` when no database is set up. Nothing on the public pages has changed.
 
 - Home: `/en/`, `/hi/`, `/mr/`
 - Bulk and wholesale (with the WhatsApp quotation form): `/en/bulk/`, `/hi/bulk/`, `/mr/bulk/`
 - Brand catalogues: `/en/catalogues/`, `/hi/catalogues/`, `/mr/catalogues/`
 - `/` sends visitors to `/en/`
 
-Built with Next.js, TypeScript, Tailwind CSS and (optionally, from round 3) Supabase.
+Built with Next.js, TypeScript, Tailwind CSS and (optionally, from round 3) Neon Postgres.
 
 ## Run it on your computer
 
@@ -24,7 +24,7 @@ npm install
 npm run dev
 ```
 
-Open http://localhost:3000/en/ while you edit. Without a `.env.local` the site uses the files in `content/`; to use a Supabase database, copy `.env.example` to `.env.local` and fill it in (see "Database" below).
+Open http://localhost:3000/en/ while you edit. Without a `.env.local` the site uses the files in `content/`; to use the database, copy `.env.example` to `.env.local` and fill it in (see "Database" below).
 
 To check the real built site:
 
@@ -38,16 +38,22 @@ npm run serve
 
 Then open http://localhost:4173/. Pages are built ahead of time and served by the Next.js server; they refresh by themselves within seconds when content changes in the database (and at least once an hour).
 
-## Database (Supabase)
+## Database (Neon Postgres)
 
-The database is optional until the admin console arrives (phase 4). Its structure is in `supabase/migrations/`, and `supabase/seed.sql` fills it with today's content from the `content/` folder.
+The database is optional until the admin console arrives (phase 4). Its structure is in `db/migrations/`, and `db/seed.sql` fills it with today's content from the `content/` folder. With `DATABASE_URL` in `.env.local`:
 
-- Every table has Row Level Security. Visitors can only read the published content (business details, offers, brands, categories, text edits). Only people listed in `admin_users` can change it, and only owners can manage admins, settings and the change history.
+```bash
+npm run db:migrate -- --seed
+```
+
+This applies any new migrations (each one once) and adds the seed rows that are missing.
+
+- Only the site's server code connects to the database (`lib/db.ts`); the browser never does. Every table has Row Level Security. Visitors can only read the published content (business details, offers, brands, categories, text edits). Only people listed in `admin_users` can change it, and only owners can manage admins, settings and the change history.
 - Every content change is recorded in `audit_log`, with who, when, and the old and new values.
 - Site texts stay in `content/<lang>.json`. The database stores only the texts changed in the admin (`text_overrides`), so the files remain the defaults.
-- After changing `content/business.ts`, `catalogues.json`, `offers.json` or `photos.ts` by hand, run `npm run seed:sql` to rewrite `supabase/seed.sql`. The seed only adds missing rows; it never overwrites changes made in the admin.
+- After changing `content/business.ts`, `catalogues.json`, `offers.json` or `photos.ts` by hand, run `npm run seed:sql` to rewrite `db/seed.sql`. The seed only adds missing rows; it never overwrites changes made in the admin.
 
-Setting up a Supabase project is described in `DEPLOY.md`.
+Setting up a Neon project is described in `DEPLOY.md`.
 
 ## Where to change things
 

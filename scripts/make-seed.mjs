@@ -1,4 +1,4 @@
-// Writes supabase/seed.sql from the content files, so the database starts with exactly
+// Writes db/seed.sql from the content files, so the database starts with exactly
 // what the site shows today. Run with `npm run seed:sql` after changing content/ by hand.
 //
 // The seed only inserts rows that do not exist yet (on conflict do nothing), so running it
@@ -97,11 +97,11 @@ lines.push(
   "values ('retention_months', '12'::jsonb)",
   "on conflict (key) do nothing;",
   "",
-  "-- The first owner is added by hand once the project exists (see DEPLOY.md):",
+  "-- The first owner is added by hand once the database exists (see DEPLOY.md):",
   "-- insert into public.admin_users (email, role, display_name) values ('owner@example.com', 'owner', 'Name');",
   "",
 );
 
-const out = fileURLToPath(new URL("../supabase/seed.sql", import.meta.url));
+const out = fileURLToPath(new URL("../db/seed.sql", import.meta.url));
 await writeFile(out, lines.join("\n"));
 console.log(`make-seed: wrote ${out}`);

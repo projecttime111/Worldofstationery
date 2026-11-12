@@ -42,5 +42,5 @@ insert into public.settings (key, value)
 values ('retention_months', '12'::jsonb)
 on conflict (key) do nothing;
 
--- The first owner is added by hand once the project exists (see DEPLOY.md):
+-- The first owner is added by hand once the database exists (see DEPLOY.md):
 -- insert into public.admin_users (email, role, display_name) values ('owner@example.com', 'owner', 'Name');

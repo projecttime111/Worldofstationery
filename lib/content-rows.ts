@@ -81,7 +81,7 @@ export function contentFromRows(rows: ContentRows, seed: SiteContent): SiteConte
   const brandRows = [...(rows.brands ?? [])].sort((x, y) => x.position - y.position);
   const categoryRows = [...(rows.categories ?? [])].sort((x, y) => x.position - y.position);
   const textRows = rows.texts ?? [];
-  if (!b || !o || !brandRows.length) throw new Error("content tables are empty (run supabase/seed.sql)");
+  if (!b || !o || !brandRows.length) throw new Error("content tables are empty (run db/seed.sql)");
 
   const toBrand = (r: BrandRow): Brand => ({
     slug: r.slug,

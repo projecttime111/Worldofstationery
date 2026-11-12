@@ -10,10 +10,11 @@
     "images": "node scripts/make-images.mjs",
     "serve": "next start -p 4173",
     "logos": "node scripts/trim-logos.mjs",
-    "seed:sql": "node scripts/make-seed.mjs"
+    "seed:sql": "node scripts/make-seed.mjs",
+    "db:migrate": "node --env-file-if-exists=.env.local scripts/db-migrate.mjs"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.119.0",
+    "@neondatabase/serverless": "^1.2.0",
     "next": "16.4.6",
     "react": "19.3.0",
     "react-dom": "19.3.0"

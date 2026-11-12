@@ -1,24 +1,37 @@
 # Deploying World of Stationery
 
-> **Changing in round 3.** The site is no longer a static export: it is a Next.js server app with a Supabase database (plan in `docs/PLAN-v3.md`). The steps below were written for the static site. The hosting choice is still open: Vercel's free Hobby plan does not allow commercial use, so a business site needs another plan. A comparison with current prices and terms will replace this page, and nothing is set up until the owner chooses. The Cloudflare Pages steps at the end no longer apply as written.
+> **Changing in round 3.** The site is no longer a static export: it is a Next.js server app with an optional Neon Postgres database (plan in `docs/PLAN-v3.md`). The hosting choice is still open: Vercel's free Hobby plan does not allow commercial use, so a business site needs Vercel Pro or another host. A comparison with current prices and terms will replace this page, and nothing is set up until the owner chooses. The static-site steps further down no longer apply as written.
 
-## Supabase (database) set-up
+## Vercel: what the server version needs
+
+- Import the GitHub repository as before; Vercel detects Next.js. No `vercel.json` is needed (the `/` → `/en/` redirect is in `next.config.ts`).
+- Environment variables: `SITE_URL` (required), and `DATABASE_URL` once the database is on. Never add the database address to a `NEXT_PUBLIC_` variable.
+- In **Settings > Functions**, set the region to the one nearest India and the Neon database (for example Mumbai, `bom1`), so pages that refresh from the database stay fast.
+
+## Neon (database) set-up
 
 Only needed once the owner decides to switch the database on.
 
-1. Create a free account at https://supabase.com and a new project in the **Mumbai (ap-south-1)** region, close to Akola. Keep the database password somewhere safe.
-2. In **Authentication > Sign In / Providers**, turn off **Allow new users to sign up**. Admins are invited from the console, nobody signs up.
-3. In the **SQL Editor**, run each file in `supabase/migrations/` in name order, then `supabase/seed.sql`.
-4. Still in the SQL Editor, add the first owner (their real email address):
+1. Create a free account at https://neon.tech and a project in the Asia Pacific region closest to India. (Or add Neon from Vercel's **Storage / Marketplace** tab, which creates the project and sets `DATABASE_URL` in Vercel for you.)
+2. In the project's **Connect** dialog, copy the **pooled** connection string. Put it in `.env.local` on this computer as `DATABASE_URL` (see `.env.example`), and in Vercel's environment variables.
+3. On this computer, run:
+
+```bash
+npm run db:migrate -- --seed
+```
+
+   It creates the tables, the two limited roles (`web_anon` for visitors, `web_admin` for admins) and the access rules, then adds today's content.
+4. In Neon's **SQL Editor**, add the first owner (their real email address):
 
 ```sql
 insert into public.admin_users (email, role, display_name) values ('owner@example.com', 'owner', 'Name');
 ```
 
-5. In **Project Settings > API**, copy the project URL and the publishable (anon) key into `.env.local` (and later the host's environment settings) as `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`. The service-role key is secret: it goes only into `SUPABASE_SERVICE_ROLE_KEY` on the server, never into a `NEXT_PUBLIC_` variable or into git.
-6. Run `npm run build`: the pages are now built from the database.
+5. Run `npm run build` (or redeploy on Vercel): the pages are now built from the database.
 
-The free plan pauses a project after a week without activity and has no automatic backups. A daily keep-alive and a weekly CSV backup are part of round 3 (phases 6 and 7).
+**Optional, safer:** in Neon's **Roles** page, create a login role for the site (for example `wos_app`), then in the SQL Editor run `grant web_anon, web_admin to wos_app;` and use that role's connection string as `DATABASE_URL`. Keep the owner's connection string only in `MIGRATION_DATABASE_URL` on this computer, for migrations. The site's own login can then never change the table structure.
+
+The free plan scales the database to zero when idle and wakes it on the next request, so no keep-alive is needed. Its restore history is short, so round 3 adds a weekly CSV backup (phase 6).
 
 ## Static-site steps (round 2, kept for reference)
 
