@@ -1,0 +1,13 @@
+{
+  "_note": "One entry per brand, in the order shown. To add a catalogue: put the PDF in public/catalogues/<slug>.pdf (under 10 MB), set pdf to \"/catalogues/<slug>.pdf\" and updated to the month and year, for example \"November 2026\". The categories lines are empty until the owner confirms what each brand supplies; an empty line is simply not shown.",
+  "brands": [
+    { "slug": "shape", "name": "Shape", "logo": "/brands/shape.webp", "logoWidth": 320, "logoHeight": 176, "categories": { "en": "", "hi": "", "mr": "" }, "pdf": null, "updated": null },
+    { "slug": "worldone", "name": "Worldone", "logo": "/brands/worldone.webp", "logoWidth": 120, "logoHeight": 120, "categories": { "en": "", "hi": "", "mr": "" }, "pdf": null, "updated": null },
+    { "slug": "creations", "name": "Creations", "logo": "/brands/creations.webp", "logoWidth": 274, "logoHeight": 120, "categories": { "en": "", "hi": "", "mr": "" }, "pdf": null, "updated": null },
+    { "slug": "soni-office-mate", "name": "Soni Office Mate", "logo": "/brands/soni-office-mate.webp", "logoWidth": 409, "logoHeight": 120, "categories": { "en": "", "hi": "", "mr": "" }, "pdf": null, "updated": null },
+    { "slug": "benelux", "name": "Benelux", "logo": "/brands/benelux.webp", "logoWidth": 120, "logoHeight": 120, "categories": { "en": "", "hi": "", "mr": "" }, "pdf": null, "updated": null },
+    { "slug": "desmat", "name": "de'smat", "logo": "/brands/desmat.webp", "logoWidth": 251, "logoHeight": 120, "categories": { "en": "", "hi": "", "mr": "" }, "pdf": null, "updated": null },
+    { "slug": "infinity", "name": "Infinity", "logo": null, "logoWidth": null, "logoHeight": null, "categories": { "en": "", "hi": "", "mr": "" }, "pdf": null, "updated": null },
+    { "slug": "goldex", "name": "Goldex", "logo": "/brands/goldex.webp", "logoWidth": 271, "logoHeight": 120, "categories": { "en": "", "hi": "", "mr": "" }, "pdf": null, "updated": null }
+  ]
+}

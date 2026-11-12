@@ -1,0 +1,17 @@
+{
+  "_note": "Values below are the placeholders from the design ([square brackets]). Confirm every number and both dates with the owner, then set enabled to true. While enabled is false, the Offers section and its nav link are hidden.",
+  "enabled": false,
+  "startDate": "",
+  "endDate": "",
+  "billTier1Min": 999,
+  "billTier1Percent": 10,
+  "billTier2Min": 4999,
+  "billTier2Percent": 15,
+  "giftPackValue": 500,
+  "referFriendSaves": 100,
+  "referYouEarn": 100,
+  "referMinFirstBill": 1000,
+  "goldVisits": 3,
+  "goldYearlySpend": 5000,
+  "goldExtraPercent": 5
+}

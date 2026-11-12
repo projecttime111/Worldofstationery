@@ -1,0 +1,129 @@
+@import "tailwindcss";
+@config "../tailwind.config.ts";
+
+/*
+ * The rupee sign (₹) comes from the phone's own font, so pages do not download
+ * Inter's 80 KB extended-Latin file for one character. If none of these fonts
+ * exists, the browser falls back to Inter as usual.
+ */
+@font-face {
+  font-family: "RupeeLocal";
+  src: local("Roboto"), local("Noto Sans"), local("Segoe UI"), local("Arial"), local("Helvetica Neue");
+  unicode-range: U+20B9;
+}
+
+/*
+ * Devanagari headings (Hindi and Marathi). The same Baloo 2 800 file Google Fonts serves,
+ * kept at a fixed address so /hi and /mr pages can preload it (see app/[lang]/layout.tsx).
+ * It is listed before Baloo 2 in the heading font stack and covers Devanagari only.
+ * Baloo 2 by Ek Type, SIL Open Font License 1.1 (see public/fonts/README.txt).
+ */
+@font-face {
+  font-family: "BalooDeva";
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: url(/fonts/baloo2-800-devanagari.woff2) format("woff2");
+  unicode-range: U+900-97F, U+1CD0-1CF4, U+1CF7-1CF9, U+200C-200D, U+20A8, U+20B9, U+20F0, U+25CC, U+A830-A839, U+A8E0-A8FF, U+11B00-11B0A;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    @apply bg-white font-sans text-ink antialiased;
+    overflow-x: hidden;
+  }
+  a {
+    @apply text-navy;
+  }
+  a:hover {
+    @apply text-navy-dark;
+  }
+  :focus-visible {
+    outline: 3px solid #1b3a6b;
+    outline-offset: 3px;
+    border-radius: 6px;
+  }
+  .on-dark :focus-visible {
+    outline-color: #f2b33d;
+  }
+  /* Anchored sections land below the top of the screen, not under it. */
+  section[id] {
+    scroll-margin-top: 16px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+}
+
+/* Hero scene motion. Chips float 6px on a slow loop; one pencil draws a wavy line once. */
+@keyframes wos-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+@keyframes wos-draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes wos-pencil {
+  from {
+    transform: translateX(-64px);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+.hero-chip {
+  animation: wos-float 6s ease-in-out infinite;
+}
+.hero-draw {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: wos-draw 1.6s 0.4s ease-out forwards;
+}
+.hero-pencil {
+  animation: wos-pencil 1.6s 0.4s ease-out both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-chip,
+  .hero-draw,
+  .hero-pencil {
+    animation: none;
+  }
+  .hero-draw {
+    stroke-dashoffset: 0;
+  }
+}
+
+@utility container-x {
+  @apply mx-auto w-full max-w-content px-6;
+}
+@utility section-y {
+  @apply py-12 md:py-[72px];
+}
+@utility h2 {
+  @apply m-0 font-heading text-[30px] leading-[1.1] font-extrabold text-navy sm:text-[34px] md:text-[40px];
+}
+@utility btn {
+  @apply inline-flex min-h-[52px] items-center justify-center rounded-pill px-[26px] text-center text-base font-semibold no-underline transition;
+}
+@utility btn-wa {
+  @apply btn bg-wa text-white hover:text-white hover:brightness-90;
+}
+@utility btn-outline {
+  @apply btn border-2 border-navy text-navy hover:bg-navy hover:text-white;
+}

@@ -1,0 +1,344 @@
+{
+  "langName": "English",
+  "meta": {
+    "homeTitle": "World of Stationery | Stationery and IT products in Akola",
+    "homeDescription": "The online store of Yamuna Enterprises, Akola. 2,000+ stationery and IT products from 10+ brands. Order on WhatsApp, or ask for bulk and wholesale rates.",
+    "bulkTitle": "Bulk and wholesale | World of Stationery, Akola",
+    "bulkDescription": "Bulk supply for schools, colleges, classes, retailers, companies and banks. Written quotation within one week from Yamuna Enterprises, Akola.",
+    "cataloguesTitle": "Brand catalogues | World of Stationery, Akola",
+    "cataloguesDescription": "Catalogues from the brands Yamuna Enterprises distributes in Akola. View a catalogue, or ask for the latest one on WhatsApp."
+  },
+  "a11y": {
+    "skipToContent": "Skip to main content",
+    "languageGroup": "Language",
+    "mainNav": "Main",
+    "openMenu": "Menu",
+    "logoAlt": "World of Stationery logo",
+    "parentLogoAlt": "Yamuna Enterprises logo",
+    "numbersLabel": "Yamuna Enterprises in numbers"
+  },
+  "topbar": {
+    "callPrefix": "Call or WhatsApp",
+    "hoursShort": "Mon–Sat 9 AM – 8 PM"
+  },
+  "header": {
+    "worldOf": "World of",
+    "stationery": "STATIONERY",
+    "byLine": "by Yamuna Enterprises",
+    "nav": {
+      "products": "Products",
+      "brands": "Brands",
+      "catalogues": "Catalogues",
+      "offers": "Offers",
+      "about": "About us",
+      "bulk": "Bulk and wholesale"
+    },
+    "whatsapp": "WhatsApp us"
+  },
+  "hero": {
+    "badge": "The online store of Yamuna Enterprises, Akola",
+    "title": "2,000+ stationery and IT products. One supplier you can trust.",
+    "text": "For 22 years, Yamuna Enterprises has kept Akola's homes, shops, schools, offices and banks stocked. Now you can order from the same trusted shelves on WhatsApp, anywhere in Akola.",
+    "ctaWhatsapp": "Order on WhatsApp",
+    "ctaBulk": "Bulk and wholesale enquiry",
+    "chips": [
+      {
+        "value": "2,000+",
+        "label": "products"
+      },
+      {
+        "value": "22",
+        "label": "years"
+      },
+      {
+        "value": "10+",
+        "label": "brands"
+      }
+    ]
+  },
+  "numbers": [
+    {
+      "value": "22+",
+      "label": "years in distribution"
+    },
+    {
+      "value": "2,000+",
+      "label": "products in range"
+    },
+    {
+      "value": "5+",
+      "label": "districts supplied"
+    },
+    {
+      "value": "10+",
+      "label": "leading brands"
+    }
+  ],
+  "products": {
+    "title": "What we stock",
+    "text": "Prices depend on quantity and stock. Send your list on WhatsApp and we reply with today's rates.",
+    "categories": [
+      {
+        "name": "Notebooks and registers",
+        "items": "Long books, short books, practical books, registers",
+        "photo": "Photo: notebooks"
+      },
+      {
+        "name": "Diaries and planners",
+        "items": "Executive diaries, planners, corporate gifting diaries",
+        "photo": "Photo: diaries"
+      },
+      {
+        "name": "Billing rolls",
+        "items": "Thermal and POS rolls for shops, banks and offices",
+        "photo": "Photo: billing rolls"
+      },
+      {
+        "name": "Files and folders",
+        "items": "Box files, display files, clear bags, document folders",
+        "photo": "Photo: files and folders"
+      },
+      {
+        "name": "Photo paper and cartridges",
+        "items": "Inkjet photo paper, printer cartridges and toner",
+        "photo": "Photo: photo paper and cartridges"
+      },
+      {
+        "name": "Computer and IT peripherals",
+        "items": "Keyboards, mice, pen drives, cables and more",
+        "photo": "Photo: IT peripherals"
+      },
+      {
+        "name": "School stationery",
+        "items": "Pens, pencils, geometry boxes, art and craft",
+        "photo": "Photo: school stationery"
+      },
+      {
+        "name": "Office stationery",
+        "items": "Markers, staplers, desk organisers, paper",
+        "photo": "Photo: office stationery"
+      }
+    ]
+  },
+  "brands": {
+    "title": "Authorised distributor",
+    "text": "Genuine stock straight from the companies we represent, plus 10+ more brands. Ask us for any brand.",
+    "keyPartner": "Key partner",
+    "alsoTitle": "We also deal in",
+    "tileLabel": "{brand}: see catalogue",
+    "moreValue": "10+",
+    "moreLabel": "more companies",
+    "moreMessage": "Hi, do you stock [brand name]?",
+    "browse": "Browse catalogues"
+  },
+  "about": {
+    "eyebrow": "About us",
+    "title": "22 years of keeping Akola writing, printing and working.",
+    "paragraphs": [
+      "Yamuna Enterprises began as a stationery distributor in Akola and, under the leadership of Deepak Chandak, has grown into a supplier that schools, companies and banks rely on every working day. Our distribution network now reaches retailers across more than five districts.",
+      "We are authorised distributors for leading stationery brands, and we supply computers and IT peripherals. With more than 2,000 products and a supply chain built over two decades, we can usually fill an order quickly, whether it is a single notebook or a full term's supply for a school.",
+      "World of Stationery is our online store. The service and the people stay the same, and now you can order from home."
+    ],
+    "chips": [
+      "Schools and colleges",
+      "Companies and banks",
+      "Retailers across 5+ districts",
+      "Families and students"
+    ]
+  },
+  "offers": {
+    "title": "Offers for retail customers",
+    "terms": "Valid {start} to {end}. One bill-value offer per bill. Discounts are on MRP. Not valid on items marked “net price” or on wholesale rates.",
+    "bill": {
+      "label": "Bigger bill, bigger saving",
+      "row": "Bill of ₹{min} or more",
+      "off": "{pct}% off",
+      "gift": "or, instead of {pct}%, a free gift pack worth ₹{value} MRP."
+    },
+    "refer": {
+      "label": "Refer a friend",
+      "title": "Your friend saves ₹{save}. You earn ₹{earn}.",
+      "text": "Your friend gives your mobile number at billing and gets ₹{save} off a first bill of ₹{min} or more. You get ₹{earn} off your next bill."
+    },
+    "gold": {
+      "label": "Gold customer",
+      "title": "Shop {visits} times and ₹{spend} in a year.",
+      "text": "Get an extra {pct}% off every bill for the next 12 months. Tracked by your mobile number, no card needed."
+    }
+  },
+  "serve": {
+    "title": "Who we serve",
+    "cards": [
+      {
+        "title": "Families and students",
+        "text": "School and exam items, art supplies and diaries at shop prices, with the offers above.",
+        "textNoOffers": "School and exam items, art supplies and diaries at shop prices.",
+        "link": ""
+      },
+      {
+        "title": "Retailers",
+        "text": "Wholesale rates on 2,000+ products from 10+ brands, delivered to your shop. 30-day payment cycle, with an extra discount when you pay on delivery.",
+        "link": "Get wholesale rates"
+      },
+      {
+        "title": "Schools, colleges and classes",
+        "text": "Special terms and offers for institutions. Written quotation within one week.",
+        "link": "Ask for a quotation"
+      },
+      {
+        "title": "Companies and banks",
+        "text": "Office stationery, billing rolls, cartridges and IT peripherals on one GST bill.",
+        "link": "Talk to us"
+      }
+    ]
+  },
+  "how": {
+    "title": "How ordering works",
+    "steps": [
+      {
+        "title": "Send your list",
+        "text": "Type it, or send a photo of the school list, to 8999126686 on WhatsApp."
+      },
+      {
+        "title": "We confirm price and stock",
+        "text": "You get a clear total, with any offer applied, before you pay."
+      },
+      {
+        "title": "Collect or get it delivered",
+        "text": "Pick up from our Akola store, or ask about delivery for your order."
+      }
+    ]
+  },
+  "visit": {
+    "title": "Visit Yamuna Enterprises",
+    "addressLabel": "Address",
+    "address": "Yamuna Sankul, Opp. Main Hospital, New Radha Kishan Plot, Akola, Maharashtra 444001",
+    "hoursLabel": "Hours",
+    "hours": "Monday to Saturday, 9:00 AM – 8:00 PM · Closed on Sundays",
+    "phoneLabel": "Phone and WhatsApp",
+    "emailLabel": "Email",
+    "whatsapp": "Chat on WhatsApp",
+    "call": "Call now",
+    "directions": "Get directions",
+    "mapTitle": "Map showing Yamuna Enterprises, Akola"
+  },
+  "footer": {
+    "legal": "© {year} World of Stationery, the online store of Yamuna Enterprises, Akola · GSTIN {gstin}",
+    "brandsNote": "Brand names and logos belong to their owners.",
+    "messagingNote": "We message only customers who ask us to.",
+    "parentName": "YAMUNA ENTERPRISES",
+    "parentLine": "World of Stationery is the online store of Yamuna Enterprises, Akola",
+    "navLabel": "Footer"
+  },
+  "bulk": {
+    "back": "Back to home",
+    "badge": "For institutions and shops",
+    "title": "Bulk supply for schools, colleges, classes, retailers, companies and banks.",
+    "text": "Tell us what you use and roughly how much. With 22 years in distribution and more than 2,000 products, we reply with a written quotation within one week.",
+    "supplyTitle": "What we can supply",
+    "supply": [
+      "Office and classroom supplies, delivered on a set date each month",
+      "Class-wise student kits, put together to your list",
+      "Exam stationery before each exam",
+      "New-session bulk orders",
+      "Wholesale stock for stationery shops"
+    ],
+    "termsTitle": "Our terms",
+    "retailers": "Retailers",
+    "retailRows": [
+      {
+        "label": "Ordering",
+        "value": "Send your list on WhatsApp or visit the store. We confirm rates and stock before dispatch."
+      },
+      {
+        "label": "Payment",
+        "value": "30-day payment cycle"
+      },
+      {
+        "label": "Pay on delivery",
+        "value": "Extra discount when you pay on the spot"
+      }
+    ],
+    "institutions": "Schools, colleges, tuition classes, companies and banks",
+    "institutionRows": [
+      {
+        "label": "Terms and offers",
+        "value": "Special terms for institutions, agreed with you at our store"
+      },
+      {
+        "label": "Quotation",
+        "value": "Written quotation within one week"
+      },
+      {
+        "label": "Billing",
+        "value": "GST bill · GSTIN {gstin}"
+      }
+    ],
+    "termsNote": "Wholesale and institutional rates are quoted separately. Retail offers do not apply on top of them."
+  },
+  "form": {
+    "ariaLabel": "Bulk quotation request",
+    "title": "Request a quotation",
+    "org": "School, class or shop name",
+    "type": "Type",
+    "types": [
+      "School",
+      "College",
+      "Coaching or tuition class",
+      "Stationery shop or reseller",
+      "Company or bank",
+      "Other"
+    ],
+    "name": "Your name",
+    "phone": "WhatsApp number",
+    "phoneHint": "10-digit mobile number",
+    "area": "Area or town",
+    "needs": "What do you need, and roughly how much?",
+    "consent": "World of Stationery may contact me on WhatsApp about this enquiry. I can reply STOP at any time.",
+    "required": "required",
+    "submit": "Send enquiry",
+    "prefer": "Prefer to talk? WhatsApp or call 8999126686, or visit us Mon–Sat, 9 AM – 8 PM.",
+    "errorSummary": "Please fix the highlighted fields.",
+    "errors": {
+      "name": "Please enter your name.",
+      "phone": "Please enter a 10-digit Indian mobile number, for example 98XXXXXXXX.",
+      "consent": "Please tick this box so we can reply to you on WhatsApp."
+    },
+    "opened": "WhatsApp is opening with your enquiry. Press send in WhatsApp to share it with us.",
+    "message": {
+      "heading": "New quotation request (website)",
+      "org": "Organisation",
+      "type": "Type",
+      "name": "Name",
+      "phone": "WhatsApp",
+      "area": "Area or town",
+      "needs": "Needs"
+    }
+  },
+  "notFound": {
+    "title": "Page not found",
+    "back": "Go to the home page"
+  },
+  "yamunaCard": {
+    "name": "YAMUNA",
+    "sub": "ENTERPRISES",
+    "lines": [
+      "Stationery and IT distribution since 22 years",
+      "Authorised distributor of leading brands",
+      "Akola · 5+ districts"
+    ]
+  },
+  "catalogues": {
+    "title": "Brand catalogues",
+    "intro": "Catalogues from the brands we distribute. Open one here, or ask us on WhatsApp and we send you the latest.",
+    "view": "View catalogue",
+    "download": "Download",
+    "updated": "Updated {date}",
+    "newTab": "(opens in a new tab)",
+    "request": "Request catalogue on WhatsApp",
+    "requestMessage": "Hi, please send me the latest {brand} catalogue.",
+    "askTitle": "Looking for another brand?",
+    "askButton": "Ask us",
+    "askMessage": "Hi, do you stock [brand name]?"
+  }
+}
